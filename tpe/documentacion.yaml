@@ -1,0 +1,1262 @@
+openapi: 3.0.0
+
+info: 
+  version: 1.0.0
+  title: TPE Arquitecturas Web TUDAI - GRUPO 1
+  description: API de Aplicación para Monopatines Eléctricos
+servers:
+- url: http://localhost:8080
+tags:
+- name: usuarios
+  description: Maneja los usuarios y tokens
+- name: admin
+  description: Solo los usuarios con rol admin acceden
+- name: facturacion
+  description: Maneja la información acerca de las facturaciones
+- name: monopatines
+  description: Maneja la información acerca de los monopatines
+- name: mantenimiento
+  description: Maneja la información acerca de los monopatines en mantenimiento y solo se puede acceder siendo de encargado de mantenimiento
+- name: paradas
+  description: Maneja la informacion de las paradas
+- name: pausas
+  description: Maneja la informacion de las pausas
+- name: viajes
+  description: Maneja la informacion de los viajes
+  
+paths:
+  /api/users:
+    post:
+      tags:
+      - usuarios
+      summary: Crea un usuario
+      description: Crea un usuario sin necesidad de token y devuelve el usuario cargado
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreacionUsuario"
+      responses:
+        201:
+          description: El usuario fue cargado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Usuario'
+                
+  /api/authenticate:
+    post:
+      summary: Devuelve un token
+      tags:
+      - usuarios
+      requestBody:
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidarUsuario"
+      responses:
+        200:
+          description: (CREATED) El usuario fue cargado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/token'
+                
+  /admin/role/{role}:
+    get:
+      tags:
+      - admin
+      - usuarios
+      summary: Devuelve los usuarios con determinado rol
+      parameters:
+      - $ref: "#/components/parameters/token"
+      - name: role
+        in: path
+        description: filtro de rol
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: devolvió una lista de los usuarios
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListaUsuarios'
+                
+  /admin/null/{id_acc}:
+    put:
+      tags:
+      - admin
+      - usuarios
+      summary: Anula la cuenta de un usuario
+      parameters:
+      - $ref: "#/components/parameters/token"
+      - name: id_acc
+        in: path
+        description: id de la cuenta a anular
+        required: true
+        schema:
+          type: number
+      responses:
+        201:
+          description: se anuló la cuenta indicada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cuenta'
+                
+  /admin/xViajes/{xViajes}/anio/{anio}:
+    get:
+      tags:
+      - admin
+      - monopatines
+      summary: Obtiene monopatines por x viajes por año
+      parameters:
+      - $ref: "#/components/parameters/token"
+      - name: xViajes
+        in: path
+        description: filtro de cantidad de viajes
+        required: true
+        schema:
+          type: number
+      - name: anio
+        in: path
+        description: filtro de año
+        required: true
+        schema:
+          type: number
+      responses:
+        200:
+          description: devolvió una lista de los monopatines con los filtros indicados
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListaMonopatines'
+                
+  /admin/totalBilled/origen/{fechaOrigen}/fin/{fechaFin}:
+    get:
+      tags:
+      - admin
+      - facturacion
+      summary: Obtiene el total facturado entre dos fechas
+      parameters:
+      - $ref: "#/components/parameters/token"
+      - name: fechaOrigen
+        in: path
+        description: fecha inicio
+        required: true
+        schema:
+          type: string
+      - name: fechaFin
+        in: path
+        description: fecha fin
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: devolvió el reporte con los datos necesarios
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReporteFacturacion'
+  
+  /admin/activosVsMantenimiento:
+    get:
+      tags:
+      - admin
+      - monopatines
+      summary: Provee una comparacion de la cantidad de monopatines activos versus la cantidad en mantenimiento
+      parameters:
+      - $ref: "#/components/parameters/token"
+      responses:
+        200:
+          description: devolvió el reporte con la comparación
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReporteMonopatinesEstado'
+                
+  /admin/newBilling:
+    post:
+      summary: Setea un nuevo precio fijo y/o extra
+      tags:
+      - admin
+      - facturacion
+      parameters:
+      - $ref: "#/components/parameters/token"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Facturacion"
+      responses:
+        201:
+          description: devolvió la nueva facturacion
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EntidadFacturacion'
+      
+  /bills:
+    get:
+      summary: Obtiene todas las facturaciones
+      tags:
+      - facturacion
+      parameters:
+      - $ref: "#/components/parameters/token"
+      responses:
+        200:
+          description: devolvió una lista con las facturaciones
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListaFacturacion'
+  
+  /mantenimiento:
+    get:
+      summary: Obtiene una lista de todos los mantenimientos
+      tags:
+      - mantenimiento
+      parameters:
+      - $ref: "#/components/parameters/token"
+      responses:
+        200:
+          description: se devolvió la lista correctamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListaMantenimientos'
+  
+  /mantenimiento/estado/{status}:
+    get:
+      summary: Obtiene mantenimientos por estados
+      tags:
+      - mantenimiento
+      parameters:
+      - $ref: "#/components/parameters/token"
+      - name: status
+        in: path
+        description: filtro de estado
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: se devolvió la lista de mantenimientos filtrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListaMantenimientos'
+      
+  /mantenimiento/{id_monopatin}:
+    post:
+      summary: Agrega un monopatín a mantenimiento
+      tags:
+      - mantenimiento
+      parameters:
+      - $ref: "#/components/parameters/token"
+      - name: id_monopatin
+        in: path
+        description: id del monopatín a agregar a mantenimiento
+        required: true
+        schema:
+          type: number
+      responses:
+        201:
+          description: se devolvió el mantenimiento recién agregado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Mantenimiento'
+    get:
+      summary: Obtiene un mantenimiento por el id del monopatín
+      tags:
+      - mantenimiento
+      parameters:
+      - $ref: "#/components/parameters/token"
+      - name: id_monopatin
+        in: path
+        description: id del monopatín
+        required: true
+        schema:
+          type: number
+      responses:
+        200:
+          description: se devolvió el mantenimiento encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Mantenimiento'
+      
+  /mantenimiento/id/{id_monopatin}/estado/{status}:
+    put:
+      summary: Modifica el estado de un monopatín
+      tags:
+      - mantenimiento
+      parameters:
+      - $ref: "#/components/parameters/token"
+      - name: id_monopatin
+        in: path
+        description: id del monopatín a modificar
+        required: true
+        schema:
+          type: number
+      - name: status
+        in: path
+        description: nuevo estado del monopatín
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: se devolvió el mantenimiento recién modificado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Mantenimiento'
+      
+  /monopatin:
+    get:
+      summary: Obtiene todos los monopatines
+      tags:
+      - monopatines
+      parameters:
+      - $ref: "#/components/parameters/token"
+      responses:
+        200:
+          description: se devolvió la lista de monopatines
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListaMonopatines'
+    post:
+      summary: Agrega un monopatín
+      tags:
+      - monopatines
+      - admin
+      parameters:
+      - $ref: "#/components/parameters/token"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreacionMonopatin'
+      responses:
+        201:
+          description: se devolvió el monopatín creado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Monopatin'
+  
+  /monopatin/id/{id_monopatin}:
+    get:
+      summary: Obtiene un monopatín
+      tags:
+      - monopatines
+      parameters:
+      - $ref: "#/components/parameters/token"
+      - name: id_monopatin
+        in: path
+        description: id del monopatín a obtener
+        required: true
+        schema:
+          type: number
+      responses:
+        200:
+          description: se devolvió el monopatín con el id especificado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Monopatin'
+  
+  /monopatin/{id_monopatin}:
+    delete:
+      summary: Borra un monopatín
+      tags:
+      - monopatines
+      - admin
+      parameters:
+      - $ref: "#/components/parameters/token"
+      - name: id_monopatin
+        in: path
+        description: id del monopatín a borrar
+        required: true
+        schema:
+          type: number
+      responses:
+        200:
+          description: se devolvió el monopatín eliminado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Monopatin'
+  
+  /monopatin/location/{posx}/{posy}:
+    get:
+      summary: Obtiene los monopatines más cercanos a una posición
+      tags:
+      - monopatines
+      parameters:
+      - $ref: "#/components/parameters/token"
+      - name: posx
+        in: path
+        description: posición x del usuario
+        required: true
+        schema:
+          type: number
+      - name: posy
+        in: path
+        description: posición y del usuario
+        required: true
+        schema:
+          type: number
+      responses:
+        200:
+          description: se devolvió la lista de monopatines cercanos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListaMonopatines'
+  
+  /parada:
+    get:
+      summary: Obtiene todas las parada
+      tags:
+      - paradas
+      parameters:
+      - $ref: "#/components/parameters/token"
+      responses:
+        200:
+          description: se devolvió la lista de paradas
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListaParadas'
+    post:
+      summary: Agrega una parada
+      tags:
+      - paradas
+      - admin
+      parameters:
+      - $ref: "#/components/parameters/token"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id_monopatin:
+                  type: number
+                  description: id del monopatín asignado a la parada, puede ser null
+      responses:
+        201:
+          description: se devolvió la parada creada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Parada'
+  
+  /parada/{id_parada}:
+    get:
+      summary: Obtiene una parada
+      tags:
+      - paradas
+      parameters:
+      - $ref: "#/components/parameters/token"
+      - name: id_parada
+        in: path
+        description: id de la parada a obtener
+        required: true
+        schema:
+          type: number
+      responses:
+        200:
+          description: se devolvió la parada con el id especificado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Parada'
+    delete:
+      summary: Borra una parada
+      tags:
+      - paradas
+      - admin
+      parameters:
+      - $ref: "#/components/parameters/token"
+      - name: id_parada
+        in: path
+        description: id de la parada a borrar
+        required: true
+        schema:
+          type: number
+      responses:
+        200:
+          description: se devolvió la parada eliminada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Parada'
+      
+  /pausa:
+    get:
+      summary: Obtiene todas las pausas
+      tags:
+      - pausas
+      parameters:
+      - $ref: "#/components/parameters/token"
+      responses:
+        200:
+          description: se devolvió la lista de pausas
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListaPausas'
+    post:
+      summary: Agrega una pausa
+      tags:
+      - pausas
+      - admin
+      parameters:
+      - $ref: "#/components/parameters/token"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreacionPausa"
+      responses:
+        201:
+          description: se devolvió la pausa creada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pausa'
+  
+  /pausa/{id_pausa}:
+    get:
+      summary: Obtiene una pausa
+      tags:
+      - pausas
+      parameters:
+      - $ref: "#/components/parameters/token"
+      - name: id_pausa
+        in: path
+        description: id de la pausa a obtener
+        required: true
+        schema:
+          type: number
+      responses:
+        200:
+          description: se devolvió la pausa con el id especificado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pausa'
+    delete:
+      summary: Borra una pausa
+      tags:
+      - pausas
+      - admin
+      parameters:
+      - $ref: "#/components/parameters/token"
+      - name: id_pausa
+        in: path
+        description: id de la pausa a borrar
+        required: true
+        schema:
+          type: number
+      responses:
+        200:
+          description: se devolvió la pausa eliminada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pausa'
+  
+  /viaje:
+    get:
+      summary: Obtiene todos los viajes
+      tags:
+      - viajes
+      parameters:
+      - $ref: "#/components/parameters/token"
+      responses:
+        200:
+          description: se devolvió la lista de viajes
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListaViajes'
+    post:
+      summary: Agrega un viaje
+      tags:
+      - viajes
+      - admin
+      parameters:
+      - $ref: "#/components/parameters/token"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreacionViaje"
+      responses:
+        201:
+          description: se devolvió el viaje creado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Viaje'
+  
+  /viaje/{id_viaje}:
+    get:
+      summary: Obtiene un viaje
+      tags:
+      - viajes
+      parameters:
+      - $ref: "#/components/parameters/token"
+      - name: id_viaje
+        in: path
+        description: id del viaje a obtener
+        required: true
+        schema:
+          type: number
+      responses:
+        200:
+          description: se devolvió el viaje con el id especificado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Viaje'
+    delete:
+      summary: Borra un viaje
+      tags:
+      - viajes
+      - admin
+      parameters:
+      - $ref: "#/components/parameters/token"
+      - name: id_viaje
+        in: path
+        description: id del viaje a borrar
+        required: true
+        schema:
+          type: number
+      responses:
+        200:
+          description: se devolvió el viaje eliminado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Viaje'
+  
+  /accounts:
+    get:
+      summary: Obtiene todas las cuentas
+      tags:
+      - usuarios
+      - admin
+      parameters:
+      - $ref: "#/components/parameters/token"
+      responses:
+        200:
+          description: se devolvió la lista de cuentas
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListaCuentas'
+    post:
+      summary: Agrega una cuenta
+      tags:
+      - usuarios
+      parameters:
+      - $ref: "#/components/parameters/token"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreacionCuenta"
+      responses:
+        201:
+          description: se devolvió la cuenta creada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cuenta'
+  
+  /accounts/{id}:
+    get:
+      summary: Obtiene una cuenta
+      tags:
+      - usuarios
+      parameters:
+      - $ref: "#/components/parameters/token"
+      - name: id
+        in: path
+        description: id de la cuenta a obtener
+        required: true
+        schema:
+          type: number
+      responses:
+        200:
+          description: se devolvió la cuenta con el id especificado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cuenta'
+      
+  /accounts/{id_cuenta}/monto/{amount}:
+    put:
+      summary: Modifica el balance de una cuenta
+      tags:
+      - usuarios
+      parameters:
+      - $ref: "#/components/parameters/token"
+      - name: id_cuenta
+        in: path
+        description: id de la cuenta a modificar
+        required: true
+        schema:
+          type: number
+      - name: amount
+        in: path
+        description: nuevo monto a asignar
+        required: true
+        schema:
+          type: number
+      responses:
+        200:
+          description: se devolvió la cuenta modificada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cuenta'
+      
+  /roles:
+    get:
+      summary: Obtiene todos los roles
+      tags:
+      - usuarios
+      - admin
+      parameters:
+      - $ref: "#/components/parameters/token"
+      responses:
+        200:
+          description: se devolvió la lista de roles
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListaRoles'
+    post:
+      summary: Agrega un rol
+      tags:
+      - usuarios
+      - admin
+      parameters:
+      - $ref: "#/components/parameters/token"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreacionRol"
+      responses:
+        201:
+          description: se devolvió el rol creado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Rol'
+                
+  /roles/{id}:
+    get:
+      summary: Obtiene un rol
+      tags:
+      - usuarios
+      - admin
+      parameters:
+      - $ref: "#/components/parameters/token"
+      - name: id
+        in: path
+        description: id del rol a obtener
+        required: true
+        schema:
+          type: number
+      responses:
+        200:
+          description: se devolvió el rol con el id especificado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Rol'
+      
+  /users:
+    get:
+      summary: Obtiene todos los usuarios
+      tags:
+      - usuarios
+      - admin
+      parameters:
+      - $ref: "#/components/parameters/token"
+      responses:
+        200:
+          description: se devolvió la lista de usuarios
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListaUsuarios'
+      
+  /users/{id}:
+    get:
+      summary: Obtiene un usuario
+      tags:
+      - usuarios
+      - admin
+      parameters:
+      - $ref: "#/components/parameters/token"
+      - name: id
+        in: path
+        description: id del usuario a obtener
+        required: true
+        schema:
+          type: number
+      responses:
+        200:
+          description: se devolvió el usuario con el id especificado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Usuario'
+    delete:
+      summary: Borra un usuario
+      tags:
+      - usuarios
+      - admin
+      parameters:
+      - $ref: "#/components/parameters/token"
+      - name: id
+        in: path
+        description: id del usuario a borrar
+        required: true
+        schema:
+          type: number
+      responses:
+        200:
+          description: se devolvió el usuario eliminado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Usuario'
+  
+  /users/role/{role}:
+    get:
+      summary: Obtiene todos los usuarios por rol
+      tags:
+      - usuarios
+      - admin
+      parameters:
+      - $ref: "#/components/parameters/token"
+      - name: role
+        in: path
+        description: rol para el filtro
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: se devolvió la lista de usuarios
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListaUsuariosRol'
+      
+  /users/email/{userEmail}:
+    get:
+      summary: Obtiene usuario por email
+      tags:
+      - usuarios
+      - admin
+      parameters:
+      - $ref: "#/components/parameters/token"
+      - name: userEmail
+        in: path
+        description: email para el filtro
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: se devolvió el usuario
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Usuario'
+      
+components:
+  parameters:
+    token:
+      name: token
+      in: header
+      description: Token de autorización para acceder a los recursos
+      required: true
+      schema:
+        type: string
+  
+  schemas:
+    token:
+      type: object
+      description: token JWT para autenticar las llamadas a endpoints
+      properties:
+        token_id:
+          type: string
+          description: token JWT
+          
+    ListaUsuarios:
+      type: array
+      items:
+        $ref: "#/components/schemas/Usuario"
+        
+    ListaUsuariosRol:
+      type: array
+      items:
+        type: object
+        properties:
+          id:
+            type: number
+            description: id del usuario
+          name:
+            type: string
+            description: nombre del usuario
+          lastname:
+            type: string
+            description: apellido del usuario
+          role:
+            type: string
+  
+    ListaMonopatines:
+      type: array
+      items:
+        $ref: "#/components/schemas/Monopatin"
+        
+    CreacionUsuario:
+      type: object
+      properties:
+        nombre:
+          type: string
+          description: nombre del usuario
+        apellido:
+          type: string
+          description: apellido del usuario
+        numeroCelular:
+          type: number
+          description: celular del usuario
+        email:
+          type: string
+          description: email del usuario
+        password:
+          type: string
+          description: contraseña del usuario
+        id_rol:
+          type: number
+          description: id del rol a asignar
+          
+    Usuario:
+      type: object
+      properties:
+        id:
+          type: number
+          description: id del usuario
+        nombre:
+          type: string
+          description: nombre del usuario
+        apellido:
+          type: string
+          description: apellido del usuario
+        numeroCelular:
+          type: number
+          description: celular del usuario
+        email:
+          type: string
+          description: email del usuario
+        password:
+          type: string
+          description: contraseña del usuario
+        role:
+          $ref: '#/components/schemas/RolUsuario'
+        
+    RolUsuario:
+      type: object
+      properties:
+        id:
+          type: number
+          description: id del rol
+        role:
+          type: string
+          description: tipo de rol
+          
+    ListaCuentas:
+      type: array
+      items:
+        $ref: '#/components/schemas/Cuenta'
+      
+    CreacionCuenta:
+      type: object
+      properties:
+        id:
+          type: number
+          description: id de la cuenta
+        creatin_date:
+          type: string
+          description: fecha de creacion de la cuenta
+        balance:
+          type: number
+          description: balance de la cuenta
+        anullated:
+          type: boolean
+          description: marca si la cuenta está anulada o no
+          
+    Cuenta:
+      type: object
+      properties:
+        id:
+          type: number
+          description: id de la cuenta
+        creatin_date:
+          type: string
+          description: fecha de creacion de la cuenta
+        balance:
+          type: number
+          description: balance de la cuenta
+        anullated:
+          type: boolean
+          description: marca si la cuenta está anulada o no
+        users:
+          $ref: "#/components/schemas/ListaUsuarios"
+    
+    ListaViajes:
+      type: array
+      items:
+        $ref: "#/components/schemas/Viaje"
+    
+    CreacionViaje:
+      type: object
+      properties:
+        duracion:
+          type: number
+          description: duracion del viaje
+        kilometros:
+          type: number
+          description: kilometros del viaje
+        fecha:
+          type: string
+          description: fecha del viaje
+        id_usuario:
+          type: number
+          description: id del usuario
+        id_monopatin:
+          type: number
+          description: id del monopatín
+    
+    Viaje:
+      type: object
+      properties:
+        id:
+          type: number
+          description: id del viaje
+        duracion:
+          type: number
+          description: duracion del viaje
+        kilometros:
+          type: number
+          description: kilometros del viaje
+        fecha:
+          type: string
+          description: fecha del viaje
+        id_usuario:
+          type: number
+          description: id del usuario
+        monopatin:
+          $ref: '#/components/schemas/Monopatin'
+
+    ListaPausas:
+      type: array
+      items:
+        $ref: "#/components/schemas/Pausa"
+
+    Pausa:
+      type: object
+      properties:
+        id:
+          type: number
+          description: id de la pausa
+        tiempo:
+          type: number
+          description: tiempo de la pausa
+        viaje:
+          $ref: "#/components/schemas/Viaje"
+    
+    CreacionPausa:
+      type: object
+      properties:
+        tiempo:
+          type: number
+          description: tiempo de la pausa
+        id_viaje:
+          type: number
+          description: id del viaje
+
+    CreacionMonopatin:
+      type: object
+      properties:
+        kmRecorridos:
+          type: number
+          description: los km que recorrió el monopatin
+        id_parada:
+          type: number
+          description: id de la parada actual o null
+
+    Monopatin:
+      type: object
+      properties:
+        id:
+          type: number
+          description: id del monopatin
+        kmRecorridos:
+          type: number
+          description: los km que recorrió el monopatin
+        parada:
+          $ref: '#/components/schemas/Parada'
+
+    ListaParadas:
+      type: array
+      items:
+        $ref: "#/components/schemas/Parada"
+
+    Parada:
+      type: object
+      properties:
+        id:
+          type: number
+          description: id de la parada
+        monopatin:
+          $ref: "#/components/schemas/Monopatin"
+          
+    ReporteFacturacion:
+      type: object
+      properties:
+        nombre:
+          type: string
+          description: nombre del reporte
+        descripcion:
+          type: string
+          description: descripcion del reporte
+        totalFacturado:
+          type: number
+          description: valor final de la facturacion
+        fechaInicio:
+          type: string
+          description: fecha de inicio del reporte
+        fechaFin:
+          type: string
+          description: fecha de fin del reporte
+          
+    ReporteMonopatinesEstado:
+      type: object
+      properties:
+        nombre:
+          type: string
+          description: nombre del reporte
+        descripcion:
+          type: string
+          description: descripcion del reporte
+        cantActivos:
+          type: number
+          description: cantidad de monopatines activos
+        cantMantenimiento:
+          type: number
+          description: cantidad de monopatines en mantenimiento
+          
+    Facturacion:
+      type: object
+      properties:
+        fechaInicioFacturacionNueva:
+          type: string
+          description: a partir de que fecha serán validos los nuevos precios
+        precioFijo:
+          type: number
+          description: precio de tarifa fijo
+        precioExtra:
+          type: number
+          description: precio de tarifa extra
+          
+    EntidadFacturacion:
+      type: object
+      properties:
+        id:
+          type: number
+          description: id de la facturacion
+        fecha:
+          type: string
+          description: fecha de vigencia de la facturacion
+        price:
+          type: number
+          description: precio de tarifa fijo
+        additionalPrice:
+          type: number
+          description: precio de tarifa extra
+    
+    ValidarUsuario: 
+      type: object
+      properties:
+        email:
+          type: string
+          description: email del usuario
+        password:
+          type: string
+          description: contraseña del usuario
+    
+    ListaFacturacion:
+      type: array
+      items:
+        $ref: "#/components/schemas/EntidadFacturacion"
+        
+    ListaMantenimientos:
+      type: array
+      items:
+        $ref: '#/components/schemas/Mantenimiento'
+        
+    Mantenimiento:
+      type: object
+      properties:
+        id:
+          type: number
+          description: id del mantenimiento
+        id_monopatin:
+          type: number
+          description: id del monopatin en mantenimiento
+        estado:
+          type: string
+          description: estado del monopatin en mantenimiento
+          
+    Rol:
+      type: object
+      properties:
+        id:
+          type: number
+          description: id del rol
+        role:
+          type: string
+          description: rol
+        users:
+          $ref: "#/components/schemas/ListaUsuarios"
+      
+    CreacionRol:
+      type: object
+      properties:
+        role:
+          type: string
+          description: rol
+    
+    ListaRoles:
+      type: array
+      items:
+       $ref: "#/components/schemas/Rol"

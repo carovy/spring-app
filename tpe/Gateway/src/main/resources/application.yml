@@ -1,0 +1,50 @@
+spring:
+  cloud:
+    gateway:
+      mvc:
+        routes:
+          - id: user
+            uri: http://localhost:8011
+            predicates:
+              - Path=/users/**
+          - id: admin
+            uri: http://localhost:8006
+            predicates:
+              - Path=/admin/**
+          - id: mantenimiento
+            uri: http://localhost:8008
+            predicates:
+              - Path=/mantenimiento/**
+          - id: monopatin
+            uri: http://localhost:8009
+            predicates:
+              - Path=/monopatin/**
+          - id: bills
+            uri: http://localhost:8007
+            predicates:
+              - Path=/bills/**
+          - id: pausa
+            uri: http://localhost:8009
+            predicates:
+              - Path=/pausa/**
+          - id: viaje
+            uri: http://localhost:8009
+            predicates:
+              - Path=/viaje/**
+          - id: parada
+            uri: http://localhost:8009
+            predicates:
+              - Path=/parada/**
+          - id: accounts
+            uri: http://localhost:8011
+            predicates:
+              - Path=/accounts/**
+          - id: roles
+            uri: http://localhost:8011
+            predicates:
+              - Path=/roles/**
+        default-filters:
+          - RemoveRequestHeader=Cookie
+logging:
+  level:
+    org.springframework.cloud.gateway: DEBUG

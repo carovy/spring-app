@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile default="true" name="Default" enabled="true" />
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="AdminMicrosevice" />
+        <module name="UserMicrosevice" />
+        <module name="Gateway" />
+        <module name="MaintenanceMicrosevice" />
+        <module name="ReportsMicrosevice" />
+        <module name="BillingMicrosevice" />
+        <module name="MonopatinMicrosevice" />
+      </profile>
+    </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="gateway" target="17" />
+      <module name="TravelsMicrosevice" target="21" />
+      <module name="User-microservice" target="21" />
+    </bytecodeTargetLevel>
+  </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="AdminMicrosevice" options="-parameters" />
+      <module name="BillingMicrosevice" options="-parameters" />
+      <module name="Gateway" options="-parameters" />
+      <module name="MaintenanceMicrosevice" options="-parameters" />
+      <module name="MonopatinMicrosevice" options="-parameters" />
+      <module name="ReportsMicrosevice" options="-parameters" />
+      <module name="TravelsMicrosevice" options="-parameters" />
+      <module name="User-microservice" options="-parameters" />
+      <module name="UserMicrosevice" options="-parameters" />
+      <module name="gateway" options="-parameters" />
+    </option>
+  </component>
+</project>

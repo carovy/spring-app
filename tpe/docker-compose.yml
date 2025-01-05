@@ -1,0 +1,104 @@
+version: '3.1'
+services:
+  gateway:
+    image: mysql:8.0
+    ports:
+      - "3312:3306" # puerto para las solicitudes HTTP= 8012
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes" # hacer contraseña vacía
+
+  admin:
+    image: mysql:8.0
+    ports:
+      - "3306:3306" # puerto para las solicitudes HTTP= 8006
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes" # hacer contraseña vacía
+
+  billing:
+    container_name: billing
+    image: mongo
+    ports:
+      - "27017:27017" # puerto para las solicitudes HTTP= 8007
+    restart: always
+    command: mongod --noauth
+
+
+  phpmyadminbilling:
+    image: phpmyadmin/phpmyadmin
+    restart: always
+    ports:
+      - "8087:80"                 # phpMyAdmin disponible en localhost:8087
+    environment:
+      PMA_HOST: billing                # Nombre del servicio MySQL (billing)
+      #MYSQL_ROOT_PASSWORD:   # La contraseña root para acceder a MySQL desde phpMyAdmin
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+
+  maintenance:
+    image: mysql:8.0
+    ports:
+      - "3308:3306" # puerto para las solicitudes HTTP= 8008
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes" # hacer contraseña vacía
+
+  phpmyadminmaintenance:
+    image: phpmyadmin/phpmyadmin
+    restart: always
+    ports:
+      - "8088:80"                 # phpMyAdmin disponible en localhost:8088
+    environment:
+      PMA_HOST: maintenance                # Nombre del servicio MySQL (maintenance)
+      #MYSQL_ROOT_PASSWORD:   # La contraseña root para acceder a MySQL desde phpMyAdmin
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+
+  monopatin:
+    image: mysql:8.0
+    ports:
+      - "3309:3306" # puerto para las solicitudes HTTP= 8009
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes" # hacer contraseña vacía
+
+  phpmyadminmonopatin:
+    image: phpmyadmin/phpmyadmin
+    restart: always
+    ports:
+      - "8089:80"                 # phpMyAdmin disponible en localhost:8089
+    environment:
+      PMA_HOST: monopatin                # Nombre del servicio MySQL (monopatin)
+      #MYSQL_ROOT_PASSWORD:   # La contraseña root para acceder a MySQL desde phpMyAdmin
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+
+  reports:
+    image: mysql:8.0
+    ports:
+      - "3310:3306" # puerto para las solicitudes HTTP= 8010
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes" # hacer contraseña vacía
+
+  user:
+    image: mysql:8.0
+    ports:
+      - "3311:3306" # puerto para las solicitudes HTTP= 8011
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes" # hacer contraseña vacía
+
+  phpmyadminuser:
+    image: phpmyadmin/phpmyadmin
+    restart: always
+    ports:
+      - "8091:80"                 # phpMyAdmin disponible en localhost:8091
+    environment:
+      PMA_HOST: user                # Nombre del servicio MySQL (user)
+      #MYSQL_ROOT_PASSWORD:   # La contraseña root para acceder a MySQL desde phpMyAdmin
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"

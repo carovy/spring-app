@@ -1,0 +1,24 @@
+version: '3.1'
+
+services:
+  db:
+    image: mysql:latest
+    restart: always
+    environment:
+
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes" # hacer contraseña vacía
+      #MYSQL_ROOT_PASSWORD:  # Contraseña para el usuario root
+      MYSQL_DATABASE: mydb        # Crea la base de datos 'mydb' al iniciar
+    ports:
+      - "3306:3306"               # Mapear puerto 3306 del contenedor al host
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    restart: always
+    ports:
+      - "8080:80"                 # phpMyAdmin disponible en localhost:8080
+    environment:
+      PMA_HOST: db                # Nombre del servicio MySQL (db)
+      #MYSQL_ROOT_PASSWORD:   # La contraseña root para acceder a MySQL desde phpMyAdmin
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+

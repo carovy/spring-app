@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="Encoding">
+    <file url="file://$PROJECT_DIR$/AdminMicrosevice/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/AdminMicrosevice/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/BillingMicrosevice/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/BillingMicrosevice/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/MaintenanceMicrosevice/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/MaintenanceMicrosevice/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/MonopatinMicrosevice/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/MonopatinMicrosevice/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/ReportsMicrosevice/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/ReportsMicrosevice/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/TravelMicrosevice/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/TravelMicrosevice/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/UserMicroservice/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/UserMicrosevice/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/UserMicrosevice/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/gateway/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/resources" charset="UTF-8" />
+  </component>
+</project>
